@@ -1,0 +1,67 @@
+1.
+
+A MongoDB Atlas-ban (vagy a Compass-ban) navigáljon a sample_mflix adatbázishoz, és kérdezze le a movies gyűjteményt az alábbiak szerint:
+
+A nyelvek közül a legelső English legyen ÉS
+A film 2 alkalommal lett díjazva (awards.wins)
+Csak a filmek címe, írói, rendezői és az év mezők jelenjenek meg
+Rendezzük sorba a filmeket év szerint csökkenően
+
+Filter: {"languages.0":"English","awards.wins":2}
+
+Project: {"title":1,"writers":1,"directors":1,"year":1,"_id":0}
+
+Sort: {"year":-1}
+
+2.
+
+A MongoDB shell-ben csatlakozzon a sample_mflix adatbázishoz, és kérdezze le a users gyűjteményt az alábbiak szerint:
+
+Csak a felhasználók neve és email címe jelenjen meg
+Az email cím tartalmazza a .com karaktersorozatot.
+
+db.users.find({"email":{$regex:/.com/}},{"name":1,"email":1,"_id":0})
+
+3.
+
+A MongoDB shell-ben csatlakozzon a sample_mflix adatbázishoz, és kérdezze le a movies gyűjteményt az alábbiak szerint:
+
+A lekérdezés feleljen meg a következő SQL lekérdezésnek:
+
+SELECT rated, AVG(runtime)
+FROM movies
+WHERE year > 1950
+GROUP BY rated
+
+db.movies.aggregate([{"$match":{"year":{$gt:1950}}},{"$group":{_id:"$rated",atlag:{$avg:"$runtime"}}}])
+
+4.
+
+Csatlakozzon a Movies adatbázishoz a Neo4J Sandbox-ban (vagy a Desktop-ban), és kérdezze le a következőket:
+
+Melyik filmben volt a legtöbb szereplő?
+Csak a film címe és a szereplők száma jelenjen meg
+Ötlet (a legegyszerűbb): sorbarendezés és az első elem megjelenítése
+
+MATCH(m:Movie)<-[:ACTED_IN]-(p:Person)
+WITH COUNT(*) AS szereplok, m.title AS cim
+RETURN cim, szereplok
+ORDER BY szereplok DESC
+LIMIT 1
+
+5.
+
+A neo4j Sandbox-ban (vagy a Desktop-ban) csatlakozzon a Movies adatbázishoz, és kérdezze le a következő SQL-lekérdezésnek megfelelő adatokat:
+
+SELECT p.name, COUNT(*)
+FROM Movies m
+JOIN Person p ON m.director_id = p.id
+WHERE m.released < 2000
+GROUP BY p.name
+HAVING COUNT(*) > 1
+
+MATCH(p:Person)-[:DIRECTED]->(m:Movie)
+WHERE m.released<2000
+WITH p.name as nev, count(*) as filmek
+WHERE filmek>1
+RETURN nev, filmek
